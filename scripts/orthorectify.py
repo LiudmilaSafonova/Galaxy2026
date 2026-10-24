@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import math
+import os
 import re
 import sys
 from pathlib import Path
@@ -164,8 +165,10 @@ def _utm_srs(latitude: float, longitude: float) -> osr.SpatialReference:
 
 
 def orthorectify(args: argparse.Namespace) -> None:
-    image = args.image.resolve()
-    telemetry_path = (args.telemetry or paired_telemetry(image)).resolve()
+    # Do not use Path.resolve() here: on Windows it expands 8.3 aliases back to
+    # Unicode names, which some third-party GDAL builds cannot encode.
+    image = Path(os.path.abspath(args.image))
+    telemetry_path = Path(os.path.abspath(args.telemetry or paired_telemetry(image)))
     metadata = read_telemetry(telemetry_path)
     source = gdal.Open(str(image), gdal.GA_ReadOnly)
     if source is None:
@@ -176,7 +179,7 @@ def orthorectify(args: argparse.Namespace) -> None:
     wgs84 = osr.SpatialReference()
     wgs84.SetWellKnownGeogCS("WGS84")
     output_srs = _utm_srs(metadata["latitude"], metadata["longitude"])
-    output = args.output.resolve()
+    output = Path(os.path.abspath(args.output))
     output.parent.mkdir(parents=True, exist_ok=True)
     vrt_path = f"/vsimem/{image.stem}-gcps.vrt"
     try:
