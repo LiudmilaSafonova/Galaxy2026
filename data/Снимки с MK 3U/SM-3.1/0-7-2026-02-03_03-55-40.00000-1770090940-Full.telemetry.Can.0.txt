@@ -1,0 +1,39 @@
+Navigation Packet:
+  RTC Time: 1770090940s 837ms
+    Date Time: 2026-02-03 03:55:40.837 AM UTC
+  Flags:
+    Navigation Quality: True
+    Time Quality: True
+    PPS: False
+    Orientation Quality: True
+    Fix 3D: True
+    Data Source: GNSS
+    Reserved: False
+    flag1: 00011011
+  Satellites:
+    GPS: 100000000000000000011000000. Used count 3
+    GLONASS: 100001111100000111100000. Used count 3
+    ReservedSat: 0
+    flag2: 0087C1E0
+  Time:
+    MnpUTC 2026-02-03 03:55:43.000 
+    Delta with RTC: -0:00:00:02.163
+  Position:
+    Latitude: 55,14755°
+    Longitude: 109,4053°
+    Height: 502521 meters
+    Horizontal std dev: 0 meters
+    Vertical std dev: 0 meters
+  Speed:
+    Azimuth: -164,938°
+    Horizontal: 7694,035 m/s
+    Vertical: -7,8008595 m/s
+    Horizontal std dev: 0,0 m/s
+    Vertical std dev: 0,0 m/s
+  Orientation:
+    Yaw: 89,49791°
+    Pitch: 84,96641°
+    Roll: 0,45799434°
+    RateMax: 10,838673 °/s
+  Reserved1:
+    00

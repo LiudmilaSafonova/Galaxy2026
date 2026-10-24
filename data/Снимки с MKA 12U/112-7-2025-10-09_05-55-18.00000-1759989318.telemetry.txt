@@ -1,0 +1,39 @@
+Navigation Packet:
+  RTC Time: 1759989326s 13ms
+    Date Time: 2025-10-09 05:55:26.013 UTC
+  Flags:
+    Navigation Quality: False
+    Time Quality: True
+    PPS: True
+    Orientation Quality: True
+    Fix 3D: False
+    Data Source: KalmamPredictor
+    Reserved: False
+    flag1: 00101110
+  Satellites:
+    GPS: 00000000. Used count 0
+    GLONASS: 11000000000000001000000. Used count 0
+    ReservedSat: 0
+    flag2: 00600040
+  Time:
+    MnpUTC 2025-10-09 05:55:28.400 
+    Delta with RTC: -00:00:02.3870000
+  Position:
+    Latitude: 60,19057°
+    Longitude: 30,764675°
+    Height: 457046 meters
+    Horizontal std dev: 0 meters
+    Vertical std dev: 0 meters
+  Speed:
+    Azimuth: -0,28978175°
+    Horizontal: 7710,8843 m/s
+    Vertical: 5,6212525 m/s
+    Horizontal std dev: 0,0 m/s
+    Vertical std dev: 0,0 m/s
+  Orientation:
+    Yaw: -0,0027515134°
+    Pitch: -0,011591297°
+    Roll: 4,964302°
+    RateMax: 4,9580393 °/s
+  Reserved1:
+    00
