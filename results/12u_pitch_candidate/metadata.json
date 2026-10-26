@@ -1,0 +1,15 @@
+{
+  "source": "C:\\ITMO\\5sem\\Galaxy2026\\results\\12u_pitch_candidate\\112-10-2026-10-12_pitch0_ortho.tif",
+  "overlay": "12u-overlay.png",
+  "bounds_wgs84": {
+    "north": 44.97660314069104,
+    "south": 44.02341787479553,
+    "east": 33.873858774937055,
+    "west": 32.914394479040254
+  },
+  "allowed_zoom": [
+    12,
+    13
+  ],
+  "purpose": "visual georeferencing quality control only"
+}

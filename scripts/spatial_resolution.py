@@ -46,7 +46,6 @@ from orthorectify import (  # reuse exactly the orthorectification camera model
     _matvec,
     _ned_to_ecef,
     _ray_ellipsoid,
-    paired_telemetry,
     read_telemetry,
 )
 
@@ -136,7 +135,8 @@ def local_resolution(map_ground: GroundMapper, u: float, v: float,
 
 
 def camera_mapper(width: int, height: int, telemetry: dict[str, float],
-                  hfov_deg: float, ground_height: float) -> GroundMapper:
+                  hfov_deg: float, ground_height: float,
+                  camera_axis: str = "+z") -> GroundMapper:
     """Build a source-pixel to WGS-84 ECEF ground mapper."""
     if not 0.1 < hfov_deg < 120.0:
         raise ValueError("--hfov-deg must be between 0.1 and 120 degrees")
@@ -150,11 +150,14 @@ def camera_mapper(width: int, height: int, telemetry: dict[str, float],
     )
 
     def map_ground(u: float, v: float) -> Point3D:
-        ray_body = (
-            (height / 2.0 - v) / focal_px,
-            (u - width / 2.0) / focal_px,
-            1.0,
-        )
+        image_top = (height / 2.0 - v) / focal_px
+        image_right = (u - width / 2.0) / focal_px
+        if camera_axis == "+z":
+            ray_body = (image_top, image_right, 1.0)
+        elif camera_axis == "-x":
+            ray_body = (-1.0, image_right, image_top)
+        else:
+            raise ValueError(f"Unsupported camera axis: {camera_axis}")
         length = _norm(ray_body)
         ray_ecef = _matvec(body_to_ecef, (value / length for value in ray_body))
         return _ray_ellipsoid(origin, ray_ecef, ground_height)
@@ -260,6 +263,19 @@ def find_images(paths: Iterable[Path]) -> list[Path]:
     return sorted(set(images), key=lambda item: str(item).casefold())
 
 
+def find_paired_telemetry(image: Path) -> Path:
+    """Find telemetry beside a 12U or 3U image with the same base name."""
+    candidates = (
+        image.with_suffix(".telemetry.txt"),
+        image.with_suffix(".telemetry.Can.0.txt"),
+    )
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    expected = " or ".join(str(candidate) for candidate in candidates)
+    raise FileNotFoundError(f"Paired telemetry file not found: {expected}")
+
+
 def analyse_image(image: Path, args: argparse.Namespace) -> dict[str, object]:
     image = Path(os.path.abspath(image))
     dataset = gdal.Open(str(image), gdal.GA_ReadOnly)
@@ -269,14 +285,15 @@ def analyse_image(image: Path, args: argparse.Namespace) -> dict[str, object]:
 
     if args.mode == "camera":
         telemetry_path = Path(os.path.abspath(
-            args.telemetry if args.telemetry is not None else paired_telemetry(image)
+            args.telemetry if args.telemetry is not None else find_paired_telemetry(image)
         ))
         telemetry = read_telemetry(telemetry_path)
         mapper = camera_mapper(width, height, telemetry, args.hfov_deg,
-                               args.ground_height_m)
+                               args.ground_height_m, args.camera_axis)
         extra: dict[str, object] = {
             "telemetry": str(telemetry_path),
             "hfov_deg": args.hfov_deg,
+            "camera_axis": args.camera_axis,
             "ground_height_m": args.ground_height_m,
             "satellite_height_m": telemetry["height"],
         }
@@ -355,6 +372,8 @@ def parser() -> argparse.ArgumentParser:
                         help="telemetry for one image (default: paired *.telemetry.txt)")
     camera.add_argument("--ground-height-m", type=float, default=0.0,
                         help="constant WGS-84 ellipsoidal ground height (default: 0)")
+    camera.add_argument("--camera-axis", choices=("+z", "-x"), default="+z",
+                        help="body optical axis: +z for 12U, -x for 3U (default: +z)")
 
     modes.add_parser(
         "geotiff", parents=[common],

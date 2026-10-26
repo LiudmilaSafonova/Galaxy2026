@@ -1,0 +1,15 @@
+{
+  "source": "C:\\ITMO\\5sem\\Galaxy2026\\results\\12u_urban_112-5-2025\\urban_highlight_georeferenced.tif",
+  "overlay": "12u-overlay.png",
+  "bounds_wgs84": {
+    "north": 60.87503172328768,
+    "south": 59.23525644288702,
+    "east": 31.30030434952025,
+    "west": 28.87908189005696
+  },
+  "allowed_zoom": [
+    12,
+    13
+  ],
+  "purpose": "visual georeferencing quality control only"
+}

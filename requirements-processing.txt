@@ -1,0 +1,7 @@
+# Processing of existing GeoTIFFs and generation of map overlays.
+# Tested on Windows with Python 3.13.
+gdal-wheel==3.13.3
+numpy==2.5.4
+scipy==1.18.1
+scikit-image==0.26.0
+Pillow==13.0.0

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="29b12855-2f4b-4ab5-9c0c-d5570862940a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/Снимки с MK 3U/ANSAT-1/0-10-2026-02-03_03-55-30.00000-1770090930-Full.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/Снимки с MK 3U/ANSAT-1/0-16-2026-02-03_03-55-30.00000-1770090930-Full.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/Снимки с MK 3U/ANSAT-1/0-22-2026-02-03_03-55-30.00000-1770090930-Full.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/Снимки с MK 3U/ANSAT-1/0-28-2026-02-03_03-55-30.00000-1770090930-Full.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/Снимки с MK 3U/ANSAT-1/0-34-2026-02-03_03-55-30.00000-1770090930-Full.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/Снимки с MK 3U/ANSAT-1/0-4-2026-02-03_03-55-30.00000-1770090930-Full.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/Снимки с MK 3U/SM-3.1/0-10-2026-02-03_03-55-30.00000-1770090930-Full.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/Снимки с MK 3U/SM-3.1/0-16-2026-02-03_03-55-30.00000-1770090930-Full.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/Снимки с MK 3U/SM-3.1/0-28-2026-02-03_03-55-30.00000-1770090930-Full.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/Снимки с MK 3U/SM-3.1/0-4-2026-02-03_03-55-30.00000-1770090930-Full.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/orthorectify.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/orthorectify.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/spatial_resolution.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/spatial_resolution.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="3L8aCdairCiwvQM4mJPvtgjsxHO" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/ITMO/5sem/Galaxy2026"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-4e2b1448bda8-9a97661f3031-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.27397.106" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="29b12855-2f4b-4ab5-9c0c-d5570862940a" name="Changes" comment="" />
+      <created>1792838025174</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1792838025174</updated>
+    </task>
+    <servers />
+  </component>
+</project>

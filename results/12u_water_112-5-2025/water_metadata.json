@@ -1,0 +1,10 @@
+{
+  "source": "орто\\12u\\original_geotiff\\112-5-2025-10-09_05-55-18.00000-1759989318_ortho.tif",
+  "png": "water_highlight.png",
+  "geotiff": "water_highlight_georeferenced.tif",
+  "water_pixels": 355031,
+  "footprint_pixels": 1183322,
+  "water_fraction_of_footprint": 0.3000290707009588,
+  "georeferencing": "copied from the input GeoTIFF; not verified against Google Maps",
+  "method": "grayscale intensity and local texture, minimum region 2000 pixels"
+}

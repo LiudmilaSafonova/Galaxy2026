@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Approximate orthorectification of a 12U image from its telemetry.
+"""Approximate orthorectification of a 12U or 3U image from its telemetry.
 
 The image is modelled as a central projection.  A regular grid of image
 points is back-projected through a pinhole camera and intersected with a
@@ -56,11 +56,23 @@ def read_telemetry(path: Path) -> dict[str, float]:
     }
 
 
+def interpolate_telemetry(first: dict[str, float], second: dict[str, float],
+                          fraction: float) -> dict[str, float]:
+    if not 0.0 <= fraction <= 1.0:
+        raise ValueError("--telemetry-fraction must be between 0 and 1")
+    return {key: first[key] + fraction * (second[key] - first[key]) for key in first}
+
+
 def paired_telemetry(image: Path) -> Path:
-    candidate = image.with_suffix(".telemetry.txt")
-    if not candidate.exists():
-        raise FileNotFoundError(f"Paired telemetry file not found: {candidate}")
-    return candidate
+    candidates = (
+        image.with_suffix(".telemetry.txt"),
+        image.with_suffix(".telemetry.Can.0.txt"),
+    )
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    expected = " or ".join(str(candidate) for candidate in candidates)
+    raise FileNotFoundError(f"Paired telemetry file not found: {expected}")
 
 
 def _matmul(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
@@ -133,7 +145,8 @@ def _ray_ellipsoid(origin: tuple[float, float, float], direction: tuple[float, f
 
 
 def make_gcps(width: int, height: int, telemetry: dict[str, float], hfov_deg: float,
-              grid_size: int, ground_height: float) -> list[gdal.GCP]:
+              grid_size: int, ground_height: float,
+              camera_axis: str = "+z") -> list[gdal.GCP]:
     if not 0.1 < hfov_deg < 120.0:
         raise ValueError("--hfov-deg must be between 0.1 and 120 degrees")
     if grid_size < 2:
@@ -147,8 +160,16 @@ def make_gcps(width: int, height: int, telemetry: dict[str, float], hfov_deg: fl
         v = row * (height - 1) / (grid_size - 1)
         for col in range(grid_size):
             u = col * (width - 1) / (grid_size - 1)
-            # Camera/body axes: X forward (image top), Y right, Z down (optical axis).
-            ray_body = ((height / 2.0 - v) / focal_px, (u - width / 2.0) / focal_px, 1.0)
+            image_top = (height / 2.0 - v) / focal_px
+            image_right = (u - width / 2.0) / focal_px
+            if camera_axis == "+z":
+                # 12U: X points to image top, Y right, +Z is the optical axis.
+                ray_body = (image_top, image_right, 1.0)
+            elif camera_axis == "-x":
+                # 3U: -X is the optical axis, Y points right and +Z image-up.
+                ray_body = (-1.0, image_right, image_top)
+            else:  # defensive guard for callers which bypass argparse
+                raise ValueError(f"Unsupported camera axis: {camera_axis}")
             norm = math.sqrt(sum(value * value for value in ray_body))
             ray_ecef = _matvec(body_to_ecef, (value / norm for value in ray_body))
             x, y, z = _ray_ellipsoid(origin, ray_ecef, ground_height)
@@ -170,11 +191,21 @@ def orthorectify(args: argparse.Namespace) -> None:
     image = Path(os.path.abspath(args.image))
     telemetry_path = Path(os.path.abspath(args.telemetry or paired_telemetry(image)))
     metadata = read_telemetry(telemetry_path)
+    if args.telemetry_after:
+        metadata = interpolate_telemetry(
+            metadata,
+            read_telemetry(Path(os.path.abspath(args.telemetry_after))),
+            args.telemetry_fraction,
+        )
+    metadata["yaw"] += args.yaw_offset_deg
+    metadata["pitch"] += args.pitch_offset_deg
+    metadata["roll"] += args.roll_offset_deg
     source = gdal.Open(str(image), gdal.GA_ReadOnly)
     if source is None:
         raise RuntimeError(f"GDAL could not open {image}")
     gcps = make_gcps(source.RasterXSize, source.RasterYSize, metadata,
-                     args.hfov_deg, args.grid_size, args.ground_height_m)
+                     args.hfov_deg, args.grid_size, args.ground_height_m,
+                     args.camera_axis)
 
     wgs84 = osr.SpatialReference()
     wgs84.SetWellKnownGeogCS("WGS84")
@@ -208,10 +239,22 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("image", type=Path, help="source JPG/PNG image")
     p.add_argument("output", type=Path, help="output orthorectified GeoTIFF")
     p.add_argument("--telemetry", type=Path, help="telemetry TXT (default: paired file)")
+    p.add_argument("--telemetry-after", type=Path,
+                   help="second telemetry TXT used for linear interpolation")
+    p.add_argument("--telemetry-fraction", type=float, default=0.5,
+                   help="fraction between --telemetry and --telemetry-after (default: 0.5)")
     p.add_argument("--hfov-deg", type=float, required=True,
                    help="calibrated horizontal camera field of view, degrees")
     p.add_argument("--ground-height-m", type=float, default=0.0,
                    help="constant WGS-84 ellipsoidal ground height (default: 0)")
+    p.add_argument("--camera-axis", choices=("+z", "-x"), default="+z",
+                   help="body optical axis: +z for 12U, -x for 3U (default: +z)")
+    p.add_argument("--yaw-offset-deg", type=float, default=0.0,
+                   help="camera mounting correction added to telemetry yaw")
+    p.add_argument("--pitch-offset-deg", type=float, default=0.0,
+                   help="camera mounting correction added to telemetry pitch")
+    p.add_argument("--roll-offset-deg", type=float, default=0.0,
+                   help="camera mounting correction added to telemetry roll")
     p.add_argument("--grid-size", type=int, default=9, help="GCP grid dimension (default: 9)")
     p.add_argument("--resolution-m", type=float, default=30.0,
                    help="output pixel size in metres (default: 30)")

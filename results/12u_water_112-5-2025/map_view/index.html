@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>12U — проверка геопривязки</title>
+  <style>
+    html, body, #map { height: 100%; margin: 0; }
+    body { font: 14px/1.4 system-ui, sans-serif; color: #15202b; }
+    .panel {
+      position: absolute; z-index: 5; top: 12px; left: 12px; width: min(390px, calc(100% - 48px));
+      padding: 12px 14px; border-radius: 10px; background: rgba(255,255,255,.96);
+      box-shadow: 0 2px 12px rgba(0,0,0,.25);
+    }
+    .row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    input[type=password] { flex: 1; min-width: 80px; padding: 7px; }
+    input[type=range] { flex: 1; }
+    button { padding: 7px 10px; cursor: pointer; }
+    .muted { color: #52606d; font-size: 12px; }
+    .error { color: #b42318; margin-top: 8px; }
+    #tools { display: none; }
+    code { font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <section class="panel">
+    <strong>12U: визуальная проверка привязки</strong>
+    <div class="muted">Google Maps используется только как интерактивная подложка. Ключ не сохраняется в файлах.</div>
+    <div id="login" class="row">
+      <input id="apiKey" type="password" autocomplete="off" placeholder="Google Maps JavaScript API key">
+      <button id="loadMap">Открыть</button>
+    </div>
+    <div id="tools">
+      <div class="row">
+        <label for="opacity">Прозрачность TIFF</label>
+        <input id="opacity" type="range" min="0" max="1" step="0.05" value="0.55">
+        <output id="opacityValue">55%</output>
+      </div>
+      <div class="row">
+        <button data-zoom="12">Zoom 12</button>
+        <button data-zoom="13">Zoom 13</button>
+        <button id="toggleOverlay">Скрыть TIFF</button>
+      </div>
+      <div class="muted" style="margin-top:8px">
+        Режим карты переключается стандартной кнопкой Google. Для дорог удобен Hybrid или Map.
+        Границы: <code>N 60.875032, S 59.235256, E 31.300304, W 28.879082</code>
+      </div>
+    </div>
+    <div id="error" class="error"></div>
+  </section>
+  <script>
+    const rasterBounds = {"north": 60.87503172328768, "south": 59.23525644288702, "east": 31.30030434952025, "west": 28.87908189005696};
+    const center = {
+      lat: (rasterBounds.north + rasterBounds.south) / 2,
+      lng: (rasterBounds.east + rasterBounds.west) / 2
+    };
+    let overlay;
+    let overlayVisible = true;
+
+    function initMap() {
+      const map = new google.maps.Map(document.getElementById('map'), {
+        center, zoom: 12, minZoom: 12, maxZoom: 13,
+        mapTypeId: 'hybrid',
+        mapTypeControlOptions: {
+          mapTypeIds: ['roadmap', 'satellite', 'hybrid']
+        },
+        streetViewControl: false
+      });
+      overlay = new google.maps.GroundOverlay('12u-overlay.png', rasterBounds, {
+        clickable: false, opacity: 0.55
+      });
+      overlay.setMap(map);
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('tools').style.display = 'block';
+
+      document.querySelectorAll('[data-zoom]').forEach(button => {
+        button.addEventListener('click', () => map.setZoom(Number(button.dataset.zoom)));
+      });
+      const opacity = document.getElementById('opacity');
+      opacity.addEventListener('input', () => {
+        overlay.setOpacity(Number(opacity.value));
+        document.getElementById('opacityValue').value = `${Math.round(opacity.value * 100)}%`;
+      });
+      document.getElementById('toggleOverlay').addEventListener('click', event => {
+        overlayVisible = !overlayVisible;
+        overlay.setMap(overlayVisible ? map : null);
+        event.currentTarget.textContent = overlayVisible ? 'Скрыть TIFF' : 'Показать TIFF';
+      });
+    }
+
+    function showError(message) {
+      document.getElementById('error').textContent = message;
+    }
+
+    document.getElementById('loadMap').addEventListener('click', () => {
+      const key = document.getElementById('apiKey').value.trim();
+      if (!key) { showError('Введите ключ Maps JavaScript API.'); return; }
+      showError('');
+      window.gm_authFailure = () => showError('Google отклонил ключ: проверьте API, billing и ограничения referrer.');
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&callback=initMap&v=weekly&loading=async`;
+      script.async = true;
+      script.onerror = () => showError('Не удалось загрузить Google Maps JavaScript API.');
+      document.head.appendChild(script);
+    });
+  </script>
+</body>
+</html>

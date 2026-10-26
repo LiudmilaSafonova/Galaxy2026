@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>12U — проверка на OpenStreetMap</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    html, body, #map { height: 100%; margin: 0; }
+    body { font: 14px/1.4 system-ui, sans-serif; }
+    .panel {
+      position: absolute; z-index: 1000; top: 12px; left: 55px;
+      width: min(330px, calc(100% - 90px)); padding: 12px 14px;
+      border-radius: 10px; background: rgba(255,255,255,.96);
+      box-shadow: 0 2px 12px rgba(0,0,0,.25);
+    }
+    .row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    input[type=range] { flex: 1; }
+    button { padding: 7px 10px; cursor: pointer; }
+    .muted { color: #52606d; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <section class="panel">
+    <strong>12U на карте дорог OpenStreetMap</strong>
+    <div class="muted">Ключ API не нужен. Наложение показывает текущую привязку TIFF.</div>
+    <div class="row">
+      <label for="opacity">Прозрачность TIFF</label>
+      <input id="opacity" type="range" min="0" max="1" step="0.05" value="0.55">
+      <output id="opacityValue">55%</output>
+    </div>
+    <div class="row">
+      <button data-zoom="12">Zoom 12</button>
+      <button data-zoom="13">Zoom 13</button>
+      <button id="toggleOverlay">Скрыть TIFF</button>
+    </div>
+    <div class="muted" style="margin-top:8px">Границы: N 44.976603, S 44.023418, E 33.873859, W 32.914394</div>
+  </section>
+  <script>
+    const rasterBounds = {"north": 44.97660314069104, "south": 44.02341787479553, "east": 33.873858774937055, "west": 32.914394479040254};
+    const bounds = [[rasterBounds.south, rasterBounds.west],
+                    [rasterBounds.north, rasterBounds.east]];
+    const map = L.map('map', {minZoom: 12, maxZoom: 13});
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      minZoom: 12, maxZoom: 13,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+    }).addTo(map);
+    const overlay = L.imageOverlay('12u-overlay.png', bounds, {
+      opacity: 0.55, alt: 'Геопривязанный снимок 12U'
+    }).addTo(map);
+    map.setView([(rasterBounds.north + rasterBounds.south) / 2,
+                 (rasterBounds.east + rasterBounds.west) / 2], 12);
+    document.querySelectorAll('[data-zoom]').forEach(button => {
+      button.addEventListener('click', () => map.setZoom(Number(button.dataset.zoom)));
+    });
+    const opacity = document.getElementById('opacity');
+    opacity.addEventListener('input', () => {
+      overlay.setOpacity(Number(opacity.value));
+      document.getElementById('opacityValue').value = `${Math.round(opacity.value * 100)}%`;
+    });
+    document.getElementById('toggleOverlay').addEventListener('click', event => {
+      const visible = map.hasLayer(overlay);
+      if (visible) map.removeLayer(overlay);
+      else overlay.addTo(map);
+      event.currentTarget.textContent = visible ? 'Показать TIFF' : 'Скрыть TIFF';
+    });
+  </script>
+</body>
+</html>

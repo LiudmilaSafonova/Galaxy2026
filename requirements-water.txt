@@ -1,0 +1,2 @@
+# Water segmentation model and its TensorFlow inference stack.
+sat-water[tf]==0.1.0

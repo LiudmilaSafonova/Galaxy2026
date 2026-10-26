@@ -1,0 +1,14 @@
+{
+  "source": "орто\\12u\\original_geotiff\\112-5-2025-10-09_05-55-18.00000-1759989318_ortho.tif",
+  "urban_pixels": 788548,
+  "footprint_pixels": 1183322,
+  "urban_fraction_of_footprint": 0.6663849738279184,
+  "products": [
+    "urban_highlight.png",
+    "urban_only.png",
+    "urban_highlight_georeferenced.tif",
+    "urban_only_georeferenced.tif"
+  ],
+  "method": "local grayscale texture, region density, exclusion of segmented water",
+  "limitations": "Built-up areas are approximate; forests, shadows and industrial terrain can affect the mask."
+}
